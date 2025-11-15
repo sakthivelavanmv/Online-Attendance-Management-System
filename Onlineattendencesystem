@@ -64,6 +64,9 @@
     <h1>Online Attendance Management System</h1>
 
     <div class="input-section">
+      <label>Register Number</label>
+      <input type="text" id="regInput" placeholder="Enter Register Number">
+
       <label>Select Date</label>
       <input type="date" id="dateInput">
 
@@ -80,6 +83,7 @@
     <table>
       <thead>
         <tr>
+          <th>Register No</th>
           <th>Date</th>
           <th>Status</th>
         </tr>
@@ -92,21 +96,23 @@
 
 <script>
 function markAttendance() {
+  let reg = document.getElementById("regInput").value;
   let date = document.getElementById("dateInput").value;
   let status = document.getElementById("statusInput").value;
 
-  if (date === "") {
-    alert("Please select a date");
+  if (reg === "" || date === "") {
+    alert("Please enter register number and select date");
     return;
   }
 
   let records = JSON.parse(localStorage.getItem("attendance")) || [];
 
-  let existing = records.find(r => r.date === date);
+  let existing = records.find(r => r.date === date && r.reg === reg);
+
   if (existing) {
     existing.status = status;
   } else {
-    records.push({ date, status });
+    records.push({ reg, date, status });
   }
 
   localStorage.setItem("attendance", JSON.stringify(records));
@@ -121,6 +127,7 @@ function displayAttendance() {
   records.forEach(r => {
     table += `
       <tr>
+        <td>${r.reg}</td>
         <td>${r.date}</td>
         <td>${r.status}</td>
       </tr>
@@ -133,7 +140,7 @@ function displayAttendance() {
 function calculatePercentage() {
   let records = JSON.parse(localStorage.getItem("attendance")) || [];
   let presentCount = records.filter(r => r.status === "Present").length;
-  let percentage = ((presentCount / records.length) * 100).toFixed(1);
+  let percentage = records.length > 0 ? ((presentCount / records.length) * 100).toFixed(1) : 0;
 
   document.getElementById("percentageBox").innerHTML =
     `Attendance Percentage: ${percentage}%`;
@@ -145,3 +152,4 @@ calculatePercentage();
 
 </body>
 </html>
+
