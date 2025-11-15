@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Online Attendance System</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 500px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px;
+      background: #0066ff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0044cc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    table th, table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    #percentageBox {
+      margin-top: 15px;
+      padding: 10px;
+      background: #e1f7e7;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Online Attendance Management System</h1>
+
+    <div class="input-section">
+      <label>Select Date</label>
+      <input type="date" id="dateInput">
+
+      <label>Mark Attendance</label>
+      <select id="statusInput">
+        <option value="Present">Present</option>
+        <option value="Absent">Absent</option>
+      </select>
+
+      <button onclick="markAttendance()">Save Attendance</button>
+    </div>
+
+    <h2>Attendance Records</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="attendanceTable"></tbody>
+    </table>
+
+    <div id="percentageBox"></div>
+  </div>
+
+<script>
+function markAttendance() {
+  let date = document.getElementById("dateInput").value;
+  let status = document.getElementById("statusInput").value;
+
+  if (date === "") {
+    alert("Please select a date");
+    return;
+  }
+
+  let records = JSON.parse(localStorage.getItem("attendance")) || [];
+
+  let existing = records.find(r => r.date === date);
+  if (existing) {
+    existing.status = status;
+  } else {
+    records.push({ date, status });
+  }
+
+  localStorage.setItem("attendance", JSON.stringify(records));
+  displayAttendance();
+  calculatePercentage();
+}
+
+function displayAttendance() {
+  let records = JSON.parse(localStorage.getItem("attendance")) || [];
+  let table = "";
+
+  records.forEach(r => {
+    table += `
+      <tr>
+        <td>${r.date}</td>
+        <td>${r.status}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("attendanceTable").innerHTML = table;
+}
+
+function calculatePercentage() {
+  let records = JSON.parse(localStorage.getItem("attendance")) || [];
+  let presentCount = records.filter(r => r.status === "Present").length;
+  let percentage = ((presentCount / records.length) * 100).toFixed(1);
+
+  document.getElementById("percentageBox").innerHTML =
+    `Attendance Percentage: ${percentage}%`;
+}
+
+displayAttendance();
+calculatePercentage();
+</script>
+
+</body>
+</html>
